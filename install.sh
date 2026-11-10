@@ -10,21 +10,21 @@ set -euo pipefail
 
 URL="${WHEEKING_URL:-https://github.com/SubzeroQ/wheeking-releases/releases/latest/download/Wheeking.zip}"
 DIR="${WHEEKING_DIR:-/Applications}"
-APP="$DIR/Wheeking.app"
+APP="${DIR}/Wheeking.app"
 
 major=$(sw_vers -productVersion | cut -d. -f1)
-if [ "$major" -lt 14 ]; then
+if [ "${major}" -lt 14 ]; then
   echo "Wheeking потребує macOS 14 або новішої (у вас $(sw_vers -productVersion))." >&2
   exit 1
 fi
 
 TMP=$(mktemp -d)
-trap 'rm -rf "$TMP"' EXIT
+trap 'rm -rf "${TMP}"' EXIT
 
 echo "🐾 Завантажую Wheeking…"
-curl -fL --progress-bar "$URL" -o "$TMP/Wheeking.zip"
-ditto -x -k "$TMP/Wheeking.zip" "$TMP/unpacked"
-if [ ! -d "$TMP/unpacked/Wheeking.app" ]; then
+curl -fL --progress-bar "${URL}" -o "${TMP}/Wheeking.zip"
+ditto -x -k "${TMP}/Wheeking.zip" "${TMP}/unpacked"
+if [ ! -d "${TMP}/unpacked/Wheeking.app" ]; then
   echo "Не вдалося розпакувати архів." >&2
   exit 1
 fi
@@ -35,19 +35,19 @@ if [ -z "${WHEEKING_DIR:-}" ] && pgrep -xq Wheeking; then
   sleep 1
 fi
 
-echo "Встановлюю в $DIR…"
+echo "Встановлюю в ${DIR}…"
 SUDO=""
-if [ ! -w "$DIR" ] || { [ -e "$APP" ] && [ ! -w "$APP" ]; }; then
-  echo "Потрібен пароль адміністратора, щоб записати в $DIR."
+if [ ! -w "${DIR}" ] || { [ -e "${APP}" ] && [ ! -w "${APP}" ]; }; then
+  echo "Потрібен пароль адміністратора, щоб записати в ${DIR}."
   SUDO="sudo"
 fi
-$SUDO rm -rf "$APP"
-$SUDO ditto "$TMP/unpacked/Wheeking.app" "$APP"
-$SUDO xattr -dr com.apple.quarantine "$APP" 2>/dev/null || true
+${SUDO} rm -rf "${APP}"
+${SUDO} ditto "${TMP}/unpacked/Wheeking.app" "${APP}"
+${SUDO} xattr -dr com.apple.quarantine "${APP}" 2>/dev/null || true
 
 if [ -z "${WHEEKING_NO_OPEN:-}" ]; then
-  open "$APP"
+  open "${APP}"
   echo "✅ Готово! Шукайте лапки 🐾 у рядку меню вгорі. Wheeking попросить дозвіл «Універсальний доступ»."
 else
-  echo "✅ Встановлено в $APP"
+  echo "✅ Встановлено в ${APP}"
 fi
